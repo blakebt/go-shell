@@ -1,0 +1,9 @@
+help
+echo
+cd
+pwd
+touch
+date
+mkdir
+ls
+rmdir
