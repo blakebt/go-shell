@@ -4,12 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
-	"time"
 )
-
-var pwd string = "~"
 
 func main() {
 
@@ -20,10 +16,10 @@ func main() {
 	for {
 
 		if path, err := os.Getwd(); err == nil {
-			pwd = path
+			state.setState(path)
 		}
 
-		fmt.Print(pwd, "$ ")
+		fmt.Print(state.getState(), "$ ")
 		in := bufio.NewReader(os.Stdin)
 
 		line, err := in.ReadString('\n')
@@ -72,52 +68,4 @@ func processFile(fileName string) []string {
 	readFile.Close()
 
 	return fileLines
-}
-
-func printHelp(args string) {
-	commands := processFile("commands.txt")
-
-	for _, c := range commands {
-		fmt.Println(c)
-	}
-}
-
-func echo(args []string) {
-	fmt.Println(strings.Join(args, " "))
-}
-
-func executeCmd(cmd string, args []string) {
-	switch cmd {
-	case "echo":
-		echo(args)
-	case "pwd":
-		printWorkingDir()
-	case "cd":
-		changeDir(args[0])
-	case "date":
-		getDate()
-	case "quit":
-		fmt.Println("Exiting...")
-		os.Exit(0)
-	default:
-		fmt.Println(cmd, "is not a valid command.")
-		fmt.Println("Type 'help' for a list of available commands.")
-	}
-}
-
-func printWorkingDir() {
-	fmt.Println(pwd)
-}
-
-func changeDir(path string) {
-
-	if newPath, err := filepath.Abs(path); err == nil {
-		pwd = newPath
-	}
-}
-
-func getDate() {
-	currTime := time.Now()
-
-	fmt.Printf("%d-%v-%d %d:%d\n", currTime.Day(), currTime.Month(), currTime.Year(), currTime.Hour(), currTime.Minute())
 }
