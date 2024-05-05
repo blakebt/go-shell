@@ -2,27 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 )
 
-type ShellState struct {
-	pwd string
-}
-
-var state ShellState = ShellState{""}
-
-func (s *ShellState) getState() string {
-	return s.pwd
-}
-
-func (s *ShellState) setState(path string) {
-	s.pwd = path
-}
-
-func executeCmd(cmd string, args []string) {
+func ExecuteCmd(cmd string, args []string) {
 	switch cmd {
 	case "echo":
 		echo(args)
@@ -32,6 +19,10 @@ func executeCmd(cmd string, args []string) {
 		changeDir(args[0])
 	case "date":
 		getDate()
+	case "help":
+		printHelp()
+	case "mkdir":
+		mkDir(args[0])
 	case "quit":
 		fmt.Println("Exiting...")
 		os.Exit(0)
@@ -42,13 +33,30 @@ func executeCmd(cmd string, args []string) {
 }
 
 func changeDir(path string) {
-
 	if newPath, err := filepath.Abs(path); err == nil {
-		state.setState(newPath)
+		info, statErr := os.Stat(strings.TrimSpace(newPath))
+		if statErr != nil {
+			panic(statErr)
+		}
+		if info.IsDir() {
+			newPath = strings.TrimSpace(newPath)
+			err := os.Chdir(newPath)
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
 }
 
-func printHelp(args string) {
+func mkDir(path string) {
+	path = strings.TrimSpace(path)
+	err := os.Mkdir(path, 0750)
+	if err != nil && !os.IsExist(err) {
+		log.Fatal(err)
+	}
+}
+
+func printHelp() {
 	commands := processFile("commands.txt")
 
 	for _, c := range commands {
@@ -61,7 +69,11 @@ func echo(args []string) {
 }
 
 func printWorkingDir() {
-	fmt.Println(state.getState())
+	path, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(path)
 }
 
 func getDate() {

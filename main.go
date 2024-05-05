@@ -8,19 +8,17 @@ import (
 )
 
 func main() {
-
+	in := bufio.NewReader(os.Stdin)
 	fmt.Println("\n----------------------------------------------------------------------")
 	fmt.Println("\nWelcome to GoShell. Type 'help' for information on available commands.")
 	fmt.Println("\n----------------------------------------------------------------------")
 
 	for {
-
-		if path, err := os.Getwd(); err == nil {
-			state.setState(path)
+		path, err := os.Getwd()
+		if err != nil {
+			panic(err)
 		}
-
-		fmt.Print(state.getState(), "$ ")
-		in := bufio.NewReader(os.Stdin)
+		fmt.Printf("%v$ ", path)
 
 		line, err := in.ReadString('\n')
 		// should never see this error because even spaces and newline characters
@@ -40,7 +38,7 @@ func main() {
 		cmd := strings.TrimSpace(input[0])
 		args := input[1:]
 
-		executeCmd(cmd, args)
+		ExecuteCmd(cmd, args)
 	}
 
 }
