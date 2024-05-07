@@ -14,10 +14,8 @@ func main() {
 	fmt.Println("\n----------------------------------------------------------------------")
 
 	for {
-		path, err := os.Getwd()
-		if err != nil {
-			panic(err)
-		}
+		path := getWorkingDir()
+
 		fmt.Printf("%v$ ", path)
 
 		line, err := in.ReadString('\n')
@@ -38,7 +36,7 @@ func main() {
 		cmd := strings.TrimSpace(input[0])
 		args := input[1:]
 
-		ExecuteCmd(cmd, args)
+		executeCmd(cmd, args)
 	}
 
 }
@@ -51,6 +49,9 @@ func processFile(fileName string) []string {
 		panic(err)
 	}
 
+	// close the file at the end of scope
+	defer readFile.Close()
+
 	// read the file
 	scanner := bufio.NewScanner(readFile)
 	// split the file into lines
@@ -61,9 +62,6 @@ func processFile(fileName string) []string {
 	for scanner.Scan() {
 		fileLines = append(fileLines, scanner.Text())
 	}
-
-	// no longer need the file, so close it
-	readFile.Close()
 
 	return fileLines
 }
