@@ -44,7 +44,7 @@ func executeCmd(cmd string, args []string) {
 func getWorkingDir() string {
 	path, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	return path
@@ -54,13 +54,13 @@ func changeDir(path string) {
 	if newPath, err := filepath.Abs(path); err == nil {
 		info, statErr := os.Stat(strings.TrimSpace(newPath))
 		if statErr != nil {
-			panic(statErr)
+			log.Fatal(statErr)
 		}
 		if info.IsDir() {
 			newPath = strings.TrimSpace(newPath)
 			err := os.Chdir(newPath)
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 		}
 	}

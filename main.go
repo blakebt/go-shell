@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -22,7 +23,7 @@ func main() {
 		// should never see this error because even spaces and newline characters
 		// are valid
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		line = strings.TrimRight(line, "\n")
@@ -46,7 +47,7 @@ func processFile(fileName string) []string {
 	readFile, err := os.Open(fileName)
 	// check for an error when opening the file
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// close the file at the end of scope
