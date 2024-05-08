@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -23,6 +24,12 @@ func executeCmd(cmd string, args []string) {
 		printHelp()
 	case "mkdir":
 		mkDir(args[0])
+	case "rmdir":
+		removeDir(args[0])
+	case "touch":
+		createFile(args[0])
+	case "rm":
+		deleteFile(args[0])
 	case "ls":
 		list()
 	case "quit":
@@ -88,7 +95,7 @@ func printWorkingDir() {
 func getDate() {
 	currTime := time.Now()
 
-	fmt.Printf("%d-%v-%d %d:%d\n", currTime.Day(), currTime.Month(), currTime.Year(), currTime.Hour(), currTime.Minute())
+	fmt.Printf("%d-%v-%d %02d:%02d\n", currTime.Day(), currTime.Month(), currTime.Year(), currTime.Hour(), currTime.Minute())
 }
 
 func list() {
@@ -97,6 +104,10 @@ func list() {
 	entries, err := os.ReadDir(pwd)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if len(entries) == 0 {
+		return
 	}
 
 	fmt.Printf("\n%-15v%-15v%v\n", "Mode", "Length", "Name")
@@ -114,4 +125,58 @@ func list() {
 		fmt.Printf("%-15v%-15v%v \n", fileType, info.Size(), e.Name())
 	}
 	fmt.Println()
+}
+
+func removeDir(path string) {
+	path = strings.TrimSpace(path)
+
+	entries, readErr := os.ReadDir(path)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	if len(entries) != 0 {
+		fmt.Println("\n!!ALERT!!")
+		fmt.Println("This directory is not empty. If you still wish to delete this directory and all its contents, please type 'y'. Otherwise type 'n'.")
+
+		reader := bufio.NewReader(os.Stdin)
+		char, _, err := reader.ReadRune()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if char == 'n' {
+			return
+		}
+	}
+
+	removeErr := os.RemoveAll(path)
+	if removeErr != nil {
+		log.Fatal(removeErr)
+	}
+
+	fmt.Printf("Directory successfully removed.\n")
+}
+
+func createFile(filename string) {
+	filename = strings.TrimSpace(filename)
+	file, err := os.Create(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer file.Close()
+
+	fmt.Println("File created successfully.")
+}
+
+func deleteFile(filename string) {
+	filename = strings.TrimSpace(filename)
+
+	err := os.Remove(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("File %s removed successfully\n", filename)
 }
