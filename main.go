@@ -47,7 +47,9 @@ func processFile(fileName string) []string {
 	readFile, err := os.Open(fileName)
 	// check for an error when opening the file
 	if err != nil {
-		log.Fatal(err)
+		openErr := ShellError{"The file could not be found.", err}
+		log.Fatal(openErr.Error())
+		return make([]string, 0)
 	}
 
 	// close the file at the end of scope

@@ -52,15 +52,21 @@ func getWorkingDir() string {
 
 func changeDir(path string) {
 	if newPath, err := filepath.Abs(path); err == nil {
+
 		info, statErr := os.Stat(strings.TrimSpace(newPath))
 		if statErr != nil {
-			log.Fatal(statErr)
+			notFound := ShellError{"\nThe system cannot find the directory specified\n", statErr}
+			fmt.Println(notFound.Error())
+			return
 		}
+
 		if info.IsDir() {
 			newPath = strings.TrimSpace(newPath)
-			err := os.Chdir(newPath)
-			if err != nil {
-				log.Fatal(err)
+			changeErr := os.Chdir(newPath)
+			if changeErr != nil {
+				notFound := ShellError{"\nThe system cannot could not change to the given directory\n", statErr}
+				fmt.Println(notFound.Error())
+				return
 			}
 		}
 	}
@@ -72,14 +78,16 @@ func mkDir(path string) {
 	err := os.MkdirAll(path, 0750)
 
 	if err != nil && !os.IsExist(err) {
-		log.Fatal(err)
+		createErr := ShellError{"Error when attempting to create directory.", err}
+		fmt.Println(createErr.Error())
+		return
 	}
 }
 
 func printHelp() {
-	commands := processFile("commands.txt")
+	helpCommands := []string{"help", "echo", "cd", "pwd", "touch", "date", "mkdir", "ls", "rmdir", "rm"}
 
-	for _, c := range commands {
+	for _, c := range helpCommands {
 		fmt.Println(c)
 	}
 }
@@ -103,7 +111,9 @@ func list() {
 
 	entries, err := os.ReadDir(pwd)
 	if err != nil {
-		log.Fatal(err)
+		readErr := ShellError{"The system could not read the directory", err}
+		fmt.Println(readErr)
+		return
 	}
 
 	if len(entries) == 0 {
@@ -132,7 +142,9 @@ func removeDir(path string) {
 
 	entries, readErr := os.ReadDir(path)
 	if readErr != nil {
-		log.Fatal(readErr)
+		readErr := ShellError{"The system could not read the directory", readErr}
+		fmt.Println(readErr.Error())
+		return
 	}
 
 	if len(entries) != 0 {
@@ -152,7 +164,9 @@ func removeDir(path string) {
 
 	removeErr := os.RemoveAll(path)
 	if removeErr != nil {
-		log.Fatal(removeErr)
+		err := ShellError{"The directory could not be removed.", removeErr}
+		fmt.Println(err.Error())
+		return
 	}
 
 	fmt.Printf("Directory successfully removed.\n")
@@ -162,7 +176,9 @@ func createFile(filename string) {
 	filename = strings.TrimSpace(filename)
 	file, err := os.Create(filename)
 	if err != nil {
-		log.Fatal(err)
+		createErr := ShellError{"The file could not be created.", err}
+		fmt.Println(createErr.Error())
+		return
 	}
 
 	defer file.Close()
@@ -175,7 +191,9 @@ func deleteFile(filename string) {
 
 	err := os.Remove(filename)
 	if err != nil {
-		log.Fatal(err)
+		removeErr := ShellError{"The file could not be removed.", err}
+		fmt.Println(removeErr.Error())
+		return
 	}
 
 	fmt.Printf("File %s removed successfully\n", filename)
