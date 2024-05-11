@@ -53,7 +53,8 @@ func getWorkingDir() string {
 func changeDir(path string) {
 	if newPath, err := filepath.Abs(path); err == nil {
 
-		info, statErr := os.Stat(strings.TrimSpace(newPath))
+		newPath = strings.TrimSpace(newPath)
+		info, statErr := os.Stat(newPath)
 		if statErr != nil {
 			notFound := ShellError{"\nThe system cannot find the directory specified\n", statErr}
 			fmt.Println(notFound.Error())
@@ -61,7 +62,6 @@ func changeDir(path string) {
 		}
 
 		if info.IsDir() {
-			newPath = strings.TrimSpace(newPath)
 			changeErr := os.Chdir(newPath)
 			if changeErr != nil {
 				notFound := ShellError{"\nThe system cannot could not change to the given directory\n", statErr}
@@ -116,6 +116,7 @@ func list() {
 		return
 	}
 
+	// There is no need to continue if the directory is empty
 	if len(entries) == 0 {
 		return
 	}
@@ -174,6 +175,7 @@ func removeDir(path string) {
 
 func createFile(filename string) {
 	filename = strings.TrimSpace(filename)
+
 	file, err := os.Create(filename)
 	if err != nil {
 		createErr := ShellError{"The file could not be created.", err}

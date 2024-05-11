@@ -5,6 +5,6 @@ type ShellError struct {
 	err     error
 }
 
-func (p *ShellError) Error() string {
-	return p.message
+func (s *ShellError) Error() string {
+	return s.message
 }
