@@ -39,32 +39,4 @@ func main() {
 
 		executeCmd(cmd, args)
 	}
-
-}
-
-func processFile(fileName string) []string {
-	// open the file
-	readFile, err := os.Open(fileName)
-	// check for an error when opening the file
-	if err != nil {
-		openErr := ShellError{"The file could not be found.", err}
-		log.Fatal(openErr.Error())
-		return make([]string, 0)
-	}
-
-	// close the file at the end of scope
-	defer readFile.Close()
-
-	// read the file
-	scanner := bufio.NewScanner(readFile)
-	// split the file into lines
-	scanner.Split(bufio.ScanLines)
-	var fileLines []string
-
-	// scan each line into a slice
-	for scanner.Scan() {
-		fileLines = append(fileLines, scanner.Text())
-	}
-
-	return fileLines
 }
